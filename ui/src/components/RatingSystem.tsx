@@ -1,3 +1,4 @@
+// UI improvements for better accessibility and user experience
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
