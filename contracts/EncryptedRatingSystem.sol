@@ -1,3 +1,4 @@
+// Enhanced contract with improved validation and error handling
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
