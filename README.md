@@ -10,6 +10,8 @@ A privacy-preserving rating system built with Fully Homomorphic Encryption (FHE)
 - **Aggregated Insights**: View average ratings and statistics without compromising privacy
 - **Multi-Subject Support**: Rate different subjects/categories independently
 - **Decentralized**: Built on blockchain with wallet-based authentication
+- **Enhanced Privacy Controls**: Advanced encryption settings for maximum security
+- **Improved User Experience**: Intuitive interface with real-time feedback
 
 ## 🎯 Use Cases
 
