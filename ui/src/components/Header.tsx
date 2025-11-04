@@ -1,3 +1,4 @@
+// Header component updates for improved navigation
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import logo from "/rating-system-logo.svg";
 import DarkModeToggle from './DarkModeToggle';
