@@ -10,6 +10,7 @@
   },
   "scripts": {
     "clean": "rimraf .next",
+    "build:prod": "npm run clean && npm run genabi && next build",
     "dev:mock": "npm run ishhrunning && npm run clean && npm run genabi && next dev --turbopack",
     "dev": "npm run clean && npm run genabi && next dev --turbopack",
     "dev-webpack": "npm run clean && npm run genabi && next dev",
