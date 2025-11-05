@@ -143,6 +143,13 @@ crypt-seal-vault/
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## 🔧 Development Guidelines
+
+- Follow conventional commit format for all commits
+- Ensure all tests pass before submitting PR
+- Update documentation for any API changes
+- Use TypeScript for all new components
+
 ## 📄 License
 
 This project is licensed under the BSD-3-Clause-Clear License. See the [LICENSE](LICENSE) file for details.
