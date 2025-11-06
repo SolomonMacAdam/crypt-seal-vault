@@ -1,3 +1,4 @@
+// FHE counter task optimizations for better performance
 import { FhevmType } from "@fhevm/hardhat-plugin";
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
