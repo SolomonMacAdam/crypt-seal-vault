@@ -1,3 +1,4 @@
+// Enhanced balance checking script with better error handling
 import { ethers } from "hardhat";
 
 async function main() {
