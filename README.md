@@ -163,3 +163,7 @@ This project is licensed under the BSD-3-Clause-Clear License. See the [LICENSE]
 ---
 
 **Built with ❤️ using FHEVM by Zama**
+
+---
+
+*Last updated: 2025-11-06*
