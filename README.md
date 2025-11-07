@@ -10,6 +10,8 @@ A privacy-preserving rating system built with Fully Homomorphic Encryption (FHE)
 - **Aggregated Insights**: View average ratings and statistics without compromising privacy
 - **Multi-Subject Support**: Rate different subjects/categories independently
 - **Decentralized**: Built on blockchain with wallet-based authentication
+- **Enhanced Privacy Controls**: Advanced encryption settings for maximum security
+- **Improved User Experience**: Intuitive interface with real-time feedback
 
 ## 🎯 Use Cases
 
@@ -141,6 +143,13 @@ crypt-seal-vault/
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
+## 🔧 Development Guidelines
+
+- Follow conventional commit format for all commits
+- Ensure all tests pass before submitting PR
+- Update documentation for any API changes
+- Use TypeScript for all new components
+
 ## 📄 License
 
 This project is licensed under the BSD-3-Clause-Clear License. See the [LICENSE](LICENSE) file for details.
@@ -154,3 +163,7 @@ This project is licensed under the BSD-3-Clause-Clear License. See the [LICENSE]
 ---
 
 **Built with ❤️ using FHEVM by Zama**
+
+---
+
+*Last updated: 2025-11-06*

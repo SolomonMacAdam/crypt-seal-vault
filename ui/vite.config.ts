@@ -46,4 +46,28 @@ export default defineConfig(({ mode }) => ({
       target: "esnext",
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separate FHEVM SDK into its own chunk
+          fhevm: ['@zama-fhe/relayer-sdk'],
+          // Separate large libraries
+          vendor: ['ethers', 'wagmi', 'viem'],
+          // UI library chunk
+          ui: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-select'],
+        },
+      },
+    },
+    // Enable source maps for production debugging but minimize
+    sourcemap: false,
+    // Aggressive minification
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
+  },
 }));

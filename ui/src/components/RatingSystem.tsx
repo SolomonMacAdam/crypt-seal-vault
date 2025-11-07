@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+// UI improvements for better accessibility and user experience
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useAccount, useChainId } from 'wagmi';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Star, TrendingUp, Users, Shield, RefreshCw, AlertCircle } from 'lucide-react';
+import { Loader2, Star, TrendingUp, Users, Shield, RefreshCw, AlertCircle, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Import FHEVM utilities and contract functions
@@ -32,6 +32,7 @@ import {
 } from '@/lib/contract';
 import { BrowserProvider, Contract } from 'ethers';
 import RatingSystemArtifact from '@/abi/EncryptedRatingSystem.json';
+import ExportDialog from './ExportDialog';
 
 const RatingSystem = () => {
   const { address, isConnected } = useAccount();
@@ -369,7 +370,7 @@ const RatingSystem = () => {
     }
   };
 
-  const handleLoadStatistics = async () => {
+  const handleLoadStatistics = useCallback(async () => {
     if (!isConnected) {
       toast.error('Please connect your wallet first');
       return;
@@ -377,7 +378,7 @@ const RatingSystem = () => {
 
     setIsLoadingStatistics(true);
     await loadContractData();
-  };
+  }, [isConnected, loadContractData]);
 
   const checkUserSubmission = async () => {
     try {
@@ -535,6 +536,11 @@ const RatingSystem = () => {
       return;
     }
 
+    if (isLoadingStats) {
+      toast.info('Statistics request already in progress...');
+      return;
+    }
+
     setIsLoadingStats(true);
 
     try {
@@ -621,7 +627,7 @@ const RatingSystem = () => {
     }
   };
 
-  const renderStars = (rating: number, interactive = false) => {
+  const renderStars = useCallback((rating: number, interactive = false) => {
     return (
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((star) => (
@@ -638,12 +644,15 @@ const RatingSystem = () => {
         ))}
       </div>
     );
-  };
+  }, []);
 
-  const networkName = chainId === 11155111 ? 'Sepolia' : chainId === 31337 ? 'Localhost' : `Chain ID ${chainId}`;
+  const networkName = useMemo(() =>
+    chainId === 11155111 ? 'Sepolia' : chainId === 31337 ? 'Localhost' : `Chain ID ${chainId}`,
+    [chainId]
+  );
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-8">
+    <div className="responsive-container py-8 sm:py-12 spacing-responsive">
       {/* Show message if contract is not deployed */}
       {isConnected && !contractDeployed && (
         <Alert variant="destructive">
@@ -689,15 +698,15 @@ const RatingSystem = () => {
             </Alert>
           )}
 
-          <div className="space-y-4">
+          <div className="form-responsive">
             <div>
-              <Label htmlFor="subject">What are you rating?</Label>
-              <Select 
-                value={subject} 
+              <Label htmlFor="subject" className="text-responsive">What are you rating?</Label>
+              <Select
+                value={subject}
                 onValueChange={setSubject}
                 disabled={!isConnected || (isConnected && !contractDeployed)}
               >
-                <SelectTrigger>
+                <SelectTrigger className="responsive-card">
                   <SelectValue placeholder="Select a subject..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -711,10 +720,12 @@ const RatingSystem = () => {
             </div>
 
             <div>
-              <Label>Rating (1-10)</Label>
+              <Label className="text-responsive">Rating (1-10)</Label>
               <div className="mt-2">
-                {renderStars(rating, isConnected && contractDeployed)}
-                <p className="text-sm text-muted-foreground mt-1">
+                <div className="stars-responsive">
+                  {renderStars(rating, isConnected && contractDeployed)}
+                </div>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-2 text-center sm:text-left">
                   Selected rating: {rating}/10
                 </p>
               </div>
@@ -723,11 +734,23 @@ const RatingSystem = () => {
             <Button
               onClick={handleSubmitRating}
               disabled={!isConnected || !subject || isSubmitting || (isConnected && !contractDeployed)}
-              className="w-full"
+              className="btn-responsive"
             >
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Submit Encrypted Rating
+              {isSubmitting ? 'Encrypting & Submitting...' : 'Submit Encrypted Rating'}
             </Button>
+
+            {isSubmitting && (
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm font-medium">Processing your rating...</span>
+                </div>
+                <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                  This may take a moment as your rating is encrypted and submitted to the blockchain.
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -749,36 +772,51 @@ const RatingSystem = () => {
             {/* Display decrypted data (like secret-vault-check) */}
             {decryptedGlobalCount > 0n ? (
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                   <span className="text-sm text-muted-foreground">Total:</span>
-                  <Badge variant="outline">{decryptedGlobalTotal.toString()}</Badge>
+                  <Badge variant="outline" className="self-start sm:self-auto text-xs">
+                    {decryptedGlobalTotal.toString()}
+                  </Badge>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                   <span className="text-sm text-muted-foreground">Count:</span>
-                  <Badge variant="outline">{decryptedGlobalCount.toString()}</Badge>
+                  <Badge variant="outline" className="self-start sm:self-auto text-xs">
+                    {decryptedGlobalCount.toString()}
+                  </Badge>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
                   <span className="text-sm text-muted-foreground">Average Rating:</span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     {decryptedGlobalCount > 0n && (
                       <>
-                        {renderStars(Number(decryptedGlobalTotal) / Number(decryptedGlobalCount))}
-                        <Badge variant="secondary">
+                        <div className="flex justify-center sm:justify-start">
+                          {renderStars(Number(decryptedGlobalTotal) / Number(decryptedGlobalCount))}
+                        </div>
+                        <Badge variant="secondary" className="self-center sm:self-auto text-xs">
                           {(Number(decryptedGlobalTotal) / Number(decryptedGlobalCount)).toFixed(2)}/10
                         </Badge>
                       </>
                     )}
                   </div>
                 </div>
-                <div className="flex justify-center mt-2">
+                <div className="flex justify-center gap-2 mt-4">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => window.location.reload()}
                     disabled={fhe.loading}
                   >
-                    🔄 Refresh Data
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh Data
                   </Button>
+                  <ExportDialog
+                    globalStats={globalStats}
+                    leadershipStats={leadershipStats}
+                    decryptedGlobalTotal={decryptedGlobalTotal}
+                    decryptedGlobalCount={decryptedGlobalCount}
+                    decryptedLeadershipTotal={decryptedLeadershipTotal}
+                    decryptedLeadershipCount={decryptedLeadershipCount}
+                  />
                 </div>
                 {fhe.loading && (
                   <p className="text-xs text-muted-foreground text-center">
@@ -789,14 +827,26 @@ const RatingSystem = () => {
             ) : !statsLoaded ? (
               <div className="text-center py-8">
                 <div className="space-y-4">
-                  <p className="text-muted-foreground">
-                    {fhe.loading ? 'Initializing FHEVM...' : 'Statistics will be automatically decrypted when available.'}
-                  </p>
-                  {fhe.loading && <Loader2 className="h-4 w-4 animate-spin mx-auto" />}
-                  {!fhe.isReady && !fhe.loading && (
-                    <p className="text-xs text-muted-foreground">
-                      FHEVM not ready. Please ensure Hardhat node is running.
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    <p className="text-muted-foreground font-medium">
+                      {fhe.loading ? 'Initializing FHEVM encryption service...' : 'Loading encrypted statistics...'}
                     </p>
+                  </div>
+                  {fhe.loading && (
+                    <p className="text-xs text-muted-foreground">
+                      Setting up secure connection to FHEVM relayer...
+                    </p>
+                  )}
+                  {!fhe.isReady && !fhe.loading && (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        FHEVM service not available.
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Statistics will load automatically when the service becomes available.
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
@@ -825,21 +875,27 @@ const RatingSystem = () => {
             {/* Display decrypted data (like secret-vault-check) */}
             {decryptedLeadershipCount > 0n ? (
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                   <span className="text-sm text-muted-foreground">Total:</span>
-                  <Badge variant="outline">{decryptedLeadershipTotal.toString()}</Badge>
+                  <Badge variant="outline" className="self-start sm:self-auto text-xs">
+                    {decryptedLeadershipTotal.toString()}
+                  </Badge>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                   <span className="text-sm text-muted-foreground">Count:</span>
-                  <Badge variant="outline">{decryptedLeadershipCount.toString()}</Badge>
+                  <Badge variant="outline" className="self-start sm:self-auto text-xs">
+                    {decryptedLeadershipCount.toString()}
+                  </Badge>
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 sm:gap-2">
                   <span className="text-sm text-muted-foreground">Average Rating:</span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                     {decryptedLeadershipCount > 0n && (
                       <>
-                        {renderStars(Number(decryptedLeadershipTotal) / Number(decryptedLeadershipCount))}
-                        <Badge variant="secondary">
+                        <div className="flex justify-center sm:justify-start">
+                          {renderStars(Number(decryptedLeadershipTotal) / Number(decryptedLeadershipCount))}
+                        </div>
+                        <Badge variant="secondary" className="self-center sm:self-auto text-xs">
                           {(Number(decryptedLeadershipTotal) / Number(decryptedLeadershipCount)).toFixed(2)}/10
                         </Badge>
                       </>

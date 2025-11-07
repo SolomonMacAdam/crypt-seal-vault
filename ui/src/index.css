@@ -68,3 +68,43 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+/* Responsive design improvements */
+@layer components {
+  .responsive-container {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .responsive-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6;
+  }
+
+  .responsive-card {
+    @apply w-full max-w-sm mx-auto sm:max-w-none;
+  }
+
+  /* Mobile-first button sizing */
+  .btn-responsive {
+    @apply w-full sm:w-auto text-sm sm:text-base px-4 py-2 sm:px-6 sm:py-3;
+  }
+
+  /* Improved mobile typography */
+  .text-responsive {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+
+  /* Better mobile spacing */
+  .spacing-responsive {
+    @apply space-y-4 sm:space-y-6 lg:space-y-8;
+  }
+
+  /* Mobile-friendly form elements */
+  .form-responsive {
+    @apply space-y-3 sm:space-y-4;
+  }
+
+  /* Responsive star rating */
+  .stars-responsive {
+    @apply flex flex-wrap justify-center sm:justify-start gap-1 sm:gap-2;
+  }
+}

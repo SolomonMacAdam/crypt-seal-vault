@@ -1,3 +1,4 @@
+// Enhanced test coverage for FHE counter functionality
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { ethers, fhevm } from "hardhat";
 import { FHECounter, FHECounter__factory } from "../types";

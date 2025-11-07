@@ -1,3 +1,4 @@
+// Sepolia test environment enhancements
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { ethers, fhevm, deployments } from "hardhat";
 import { FHECounter } from "../types";

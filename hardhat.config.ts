@@ -1,3 +1,4 @@
+// Configuration updates for better performance and compatibility
 import "@fhevm/hardhat-plugin";
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomicfoundation/hardhat-ethers";
