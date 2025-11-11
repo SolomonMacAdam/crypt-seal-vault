@@ -54,7 +54,7 @@ export async function initializeFHEVM(chainId?: number): Promise<FhevmInstance> 
     console.log("[FHEVM] Current chain ID:", currentChainId);
 
     // Initialize SDK for Sepolia (following secret-vault-check pattern)
-    if (currentChainId === 11155111) {
+    if (currentChainId === 11155111 && !isSDKInitialized) {
       console.log("[FHEVM] Initializing FHE SDK for Sepolia...");
 
       try {
