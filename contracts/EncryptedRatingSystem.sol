@@ -154,7 +154,11 @@ contract EncryptedRatingSystem is SepoliaConfig {
 
         // Add new rating to aggregates
         bytes32 newSubjectHash = keccak256(bytes(newSubject));
-        _encryptedRatingSum[newSubjectHash] = FHE.add(_encryptedRatingSum[newSubjectHash], newRating);
+        if (_subjectEntryCount[newSubjectHash] == 0) {
+            _encryptedRatingSum[newSubjectHash] = newRating;
+        } else {
+            _encryptedRatingSum[newSubjectHash] = FHE.add(_encryptedRatingSum[newSubjectHash], newRating);
+        }
         _subjectEntryCount[newSubjectHash]++;
 
         _encryptedGlobalSum = FHE.add(_encryptedGlobalSum, newRating);
