@@ -173,6 +173,11 @@ contract EncryptedRatingSystem is SepoliaConfig {
         FHE.allow(newRating, msg.sender);
         FHE.allowThis(_encryptedRatingSum[newSubjectHash]);
         FHE.allowThis(_encryptedGlobalSum);
+        
+        // Clean up old subject permissions if still has entries
+        if (_subjectEntryCount[oldSubjectHash] > 0) {
+            FHE.allowThis(_encryptedRatingSum[oldSubjectHash]);
+        }
 
         // Allow user to decrypt aggregate data
         FHE.allow(_encryptedRatingSum[newSubjectHash], msg.sender);
