@@ -303,7 +303,8 @@ contract EncryptedRatingSystem is SepoliaConfig {
         }
 
         uint32 count = _subjectEntryCount[subjectHash];
-        _decryptedSubjectAverage[subjectHash] = count > 0 ? totalRating / count : 0;
+        require(count > 0, "No entries for this subject");
+        _decryptedSubjectAverage[subjectHash] = totalRating / count;
 
         _subjectStatsFinalized[subjectHash] = true;
         delete _subjectStatsRequest[requestId];
