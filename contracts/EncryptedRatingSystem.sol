@@ -143,6 +143,10 @@ contract EncryptedRatingSystem is SepoliaConfig {
         bytes32 oldSubjectHash = keccak256(bytes(entry.subject));
         _encryptedRatingSum[oldSubjectHash] = FHE.sub(_encryptedRatingSum[oldSubjectHash], entry.encryptedRating);
         _subjectEntryCount[oldSubjectHash]--;
+        
+        if (_subjectEntryCount[oldSubjectHash] == 0) {
+            delete _encryptedRatingSum[oldSubjectHash];
+        }
 
         _encryptedGlobalSum = FHE.sub(_encryptedGlobalSum, entry.encryptedRating);
         _globalEntryCount--;
