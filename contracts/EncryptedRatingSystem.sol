@@ -277,6 +277,7 @@ contract EncryptedRatingSystem is SepoliaConfig {
     /// @notice Request decryption of subject-specific statistics
     /// @param subject Subject name
     function requestSubjectStats(string memory subject) external {
+        require(bytes(subject).length > 0, "Subject cannot be empty");
         bytes32 subjectHash = keccak256(bytes(subject));
         require(_subjectEntryCount[subjectHash] > 0, "No data for this subject");
         require(!_subjectStatsFinalized[subjectHash], "Subject stats already finalized");
