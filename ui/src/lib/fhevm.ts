@@ -47,7 +47,12 @@ export async function initializeFHEVM(chainId?: number): Promise<FhevmInstance> 
         currentChainId = parseInt(chainIdHex, 16);
       } catch (error) {
         console.error("[FHEVM] Failed to get chainId:", error);
-        currentChainId = 31337;
+        // Try to get from provider if available
+        if ((window as any).ethereum?.chainId) {
+          currentChainId = parseInt((window as any).ethereum.chainId, 16);
+        } else {
+          currentChainId = 31337;
+        }
       }
     }
 
