@@ -339,7 +339,8 @@ contract EncryptedRatingSystem is SepoliaConfig {
             totalRating := shr(224, mload(add(cleartexts, 32)))
         }
 
-        _decryptedGlobalAverage = _globalEntryCount > 0 ? totalRating / _globalEntryCount : 0;
+        require(_globalEntryCount > 0, "No active entries");
+        _decryptedGlobalAverage = totalRating / _globalEntryCount;
 
         _globalStatsFinalized = true;
         delete _globalStatsRequest[requestId];
