@@ -262,6 +262,7 @@ contract EncryptedRatingSystem is SepoliaConfig {
     /// @return encryptedSum Encrypted sum for this subject
     /// @return count Entry count for this subject
     function getEncryptedSubjectStats(string memory subject) external view returns (euint32 encryptedSum, uint32 count) {
+        require(bytes(subject).length > 0, "Subject cannot be empty");
         bytes32 subjectHash = keccak256(bytes(subject));
         return (_encryptedRatingSum[subjectHash], _subjectEntryCount[subjectHash]);
     }
