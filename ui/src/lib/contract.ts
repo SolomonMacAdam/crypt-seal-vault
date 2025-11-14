@@ -38,15 +38,29 @@ export function isContractDeployed(chainId?: number): boolean {
 }
 
 // Get contract address for current network (returns zero address if not deployed)
+// Cache contract addresses to avoid repeated lookups
+const addressCache = new Map<number, string>();
+
 export function getContractAddress(chainId?: number): string {
   const id = chainId ?? 31337;
+  
+  // Check cache first
+  if (addressCache.has(id)) {
+    return addressCache.get(id)!;
+  }
+  
+  let address: string;
   if (id === 31337) {
-    return RATING_SYSTEM_ADDRESS.localhost || "0x0000000000000000000000000000000000000000";
+    address = RATING_SYSTEM_ADDRESS.localhost || "0x0000000000000000000000000000000000000000";
+  } else if (id === 11155111) {
+    address = RATING_SYSTEM_ADDRESS.sepolia || "0x0000000000000000000000000000000000000000";
+  } else {
+    address = "0x0000000000000000000000000000000000000000";
   }
-  if (id === 11155111) {
-    return RATING_SYSTEM_ADDRESS.sepolia || "0x0000000000000000000000000000000000000000";
-  }
-  return "0x0000000000000000000000000000000000000000";
+  
+  // Cache the address
+  addressCache.set(id, address);
+  return address;
 }
 
 export function getRatingSystemContract(
