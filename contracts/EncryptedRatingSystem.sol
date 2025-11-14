@@ -286,6 +286,7 @@ contract EncryptedRatingSystem is SepoliaConfig {
         cts[0] = FHE.toBytes32(_encryptedRatingSum[subjectHash]);
 
         uint256 requestId = FHE.requestDecryption(cts, this.subjectStatsCallback.selector);
+        require(requestId > 0, "Invalid decryption request");
         _subjectStatsRequest[requestId] = subjectHash;
 
         emit SubjectStatsRequested(subjectHash, requestId);
@@ -324,6 +325,7 @@ contract EncryptedRatingSystem is SepoliaConfig {
         cts[0] = FHE.toBytes32(_encryptedGlobalSum);
 
         uint256 requestId = FHE.requestDecryption(cts, this.globalStatsCallback.selector);
+        require(requestId > 0, "Invalid decryption request");
         _globalStatsRequest[requestId] = true;
 
         emit GlobalStatsRequested(requestId);
