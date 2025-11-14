@@ -288,25 +288,21 @@ export async function getGlobalStats(
   try {
     const contract = getRatingSystemContract(provider, chainId);
     
-    // First get active count (this should work even if stats aren't finalized)
+    // Load statistics in parallel for better performance
     let activeCount = 0;
-    try {
-      activeCount = Number(await contract.getActiveEntryCount());
-      console.log('[getGlobalStats] Active entry count:', activeCount);
-    } catch (countError: any) {
-      console.warn('[getGlobalStats] Failed to get active entry count:', countError);
-      // Continue even if this fails
-    }
-    
-    // Check if stats are finalized
     let finalized = false;
+    
     try {
-      finalized = await contract.isGlobalStatsFinalized();
-      console.log('[getGlobalStats] Stats finalized:', finalized);
-    } catch (finalizedError: any) {
-      console.warn('[getGlobalStats] Failed to check if finalized:', finalizedError);
-      // If we can't check, assume not finalized and return active count
-      return { average: 0, count: activeCount, finalized: false };
+      const [count, isFinalized] = await Promise.all([
+        contract.getActiveEntryCount().catch(() => 0),
+        contract.isGlobalStatsFinalized().catch(() => false)
+      ]);
+      activeCount = Number(count);
+      finalized = isFinalized;
+      console.log('[getGlobalStats] Active entry count:', activeCount, 'Finalized:', finalized);
+    } catch (error: any) {
+      console.warn('[getGlobalStats] Failed to get stats:', error);
+      return { average: 0, count: 0, finalized: false };
     }
 
     if (!finalized) {
