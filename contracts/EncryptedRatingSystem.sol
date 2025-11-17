@@ -124,9 +124,10 @@ contract EncryptedRatingSystem is SepoliaConfig {
         require(bytes(newSubject).length > 0, "Subject cannot be empty");
         require(bytes(newSubject).length <= 100, "Subject too long");
 
-        // Find user's current active entry (users can only have one active rating)
+        // Find user's current active entry
         uint256 entryId = 0;
         bool found = false;
+        
         for (uint256 i = 0; i < entryCount; i++) {
             if (ratingEntries[i].submitter == msg.sender && ratingEntries[i].isActive) {
                 entryId = i;
@@ -141,17 +142,20 @@ contract EncryptedRatingSystem is SepoliaConfig {
 
         // Remove old rating from aggregates
         bytes32 oldSubjectHash = keccak256(bytes(entry.subject));
-        _encryptedRatingSum[oldSubjectHash] = FHE.sub(_encryptedRatingSum[oldSubjectHash], entry.encryptedRating);
+        _encryptedRatingSum[oldSubjectHash] = FHE.sub(_encryptedRatingSum[oldSubjectHash], oldEncryptedRating);
         _subjectEntryCount[oldSubjectHash]--;
         
         if (_subjectEntryCount[oldSubjectHash] == 0) {
             delete _encryptedRatingSum[oldSubjectHash];
         }
 
-        _encryptedGlobalSum = FHE.sub(_encryptedGlobalSum, entry.encryptedRating);
+        _encryptedGlobalSum = FHE.sub(_encryptedGlobalSum, oldEncryptedRating);
         _globalEntryCount--;
 
-        // Update entry
+        // Store old encrypted rating for subtraction
+        euint32 oldEncryptedRating = entry.encryptedRating;
+        
+        // Update entry - ensure atomic update
         entry.encryptedRating = newRating;
         entry.subject = newSubject;
         entry.timestamp = block.timestamp;
@@ -202,6 +206,8 @@ contract EncryptedRatingSystem is SepoliaConfig {
                 
                 if (_subjectEntryCount[subjectHash] == 0) {
                     delete _encryptedRatingSum[subjectHash];
+                } else {
+                    FHE.allowThis(_encryptedRatingSum[subjectHash]);
                 }
 
                 _encryptedGlobalSum = FHE.sub(_encryptedGlobalSum, entry.encryptedRating);
