@@ -33,6 +33,7 @@ let isSDKInitialized = false;
  * Sepolia (11155111): Uses @zama-fhe/relayer-sdk
  */
 export async function initializeFHEVM(chainId?: number): Promise<FhevmInstance> {
+  // Cache instance to avoid recreating
   if (!fhevmInstance) {
     // Check window.ethereum
     if (typeof window === "undefined" || !(window as any).ethereum) {
@@ -115,7 +116,7 @@ export async function initializeFHEVM(chainId?: number): Promise<FhevmInstance> 
 
           fhevmInstance = mockInstance;
           console.log("[FHEVM] Mock FHEVM instance created successfully!");
-          return mockInstance;
+          return fhevmInstance;
         } else {
           throw new Error("FHEVM metadata is incomplete");
         }
@@ -149,6 +150,7 @@ export async function initializeFHEVM(chainId?: number): Promise<FhevmInstance> 
 
         fhevmInstance = await createInstance(config);
         console.log("[FHEVM] ✅ Sepolia FHEVM instance created successfully!");
+        return fhevmInstance;
       } catch (error: any) {
         console.error("[FHEVM] ❌ Sepolia instance creation failed:", error);
         throw new Error(
