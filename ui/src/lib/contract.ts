@@ -158,19 +158,28 @@ export async function getUserEntry(
     const contract = getRatingSystemContract(provider, chainId);
     const submitted = await contract.hasSubmitted(userAddress);
     if (!submitted) return null;
+    
     // Note: Users can only have one active rating at a time
     // We'll need to find their active entry
+    // Optimize by limiting search range
     const entryCount = await contract.getEntryCount();
-    for (let i = 0; i < entryCount; i++) {
-      const entry = await contract.getEntry(i);
-      if (entry.submitter === userAddress && entry.isActive) {
-        return {
-          id: i,
-          subject: entry.subject,
-          timestamp: Number(entry.timestamp),
-          submitter: entry.submitter,
-          isActive: entry.isActive,
-        };
+    const maxSearch = Math.min(Number(entryCount), 100); // Limit search to prevent gas issues
+    
+    for (let i = 0; i < maxSearch; i++) {
+      try {
+        const entry = await contract.getEntry(i);
+        if (entry.submitter === userAddress && entry.isActive) {
+          return {
+            id: i,
+            subject: entry.subject,
+            timestamp: Number(entry.timestamp),
+            submitter: entry.submitter,
+            isActive: entry.isActive,
+          };
+        }
+      } catch (error) {
+        // Skip invalid entries
+        continue;
       }
     }
     return null;
@@ -359,12 +368,14 @@ export async function submitRating(
     );
   }
 
+  // Validate inputs before processing
   if (!subject || subject.trim().length === 0) {
     throw new Error("Subject cannot be empty");
   }
   if (subject.length > 100) {
     throw new Error("Subject is too long (max 100 characters)");
   }
+  
 
   // Import ethers dynamically to avoid issues
   const { ethers } = await import("ethers");
